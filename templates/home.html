@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+{% block title %}ApexRML — Parts, Garages &amp; Recovery{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ---------- HERO ---------- */
+  .hero{
+    background: linear-gradient(180deg, var(--forest) 0%, #123024 100%);
+    color: var(--white);
+    padding: 72px 28px 96px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-inner{
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color: var(--amber);
+    border: 1px solid rgba(226,163,59,0.4);
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+  }
+  .hero h1{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 7vw, 68px);
+    line-height: 0.98;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0 0 20px;
+  }
+  .hero h1 em{
+    font-style: normal;
+    color: var(--moss);
+  }
+  .hero p.sub{
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.75);
+    max-width: 520px;
+    margin: 0 auto 34px;
+  }
+  .hero-cta{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background: var(--amber);
+    color: var(--graphite);
+    text-decoration:none;
+    font-weight: 700;
+    font-size: 15.5px;
+    padding: 14px 28px;
+    border-radius: 4px;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .hero-cta:hover{ background:#EEB458; transform: translateY(-1px); }
+  .hero-cta:focus-visible{ outline: 3px solid var(--white); outline-offset: 3px; }
+
+  /* faint road texture in hero background */
+  .hero::before{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height: 140px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0 26px,
+      rgba(255,255,255,0.06) 26px 58px
+    );
+    -webkit-mask-image: linear-gradient(180deg, transparent, black);
+            mask-image: linear-gradient(180deg, transparent, black);
+  }
+
+  /* ---------- SERVICES / ROUTE ---------- */
+  .services{
+    max-width: 1100px;
+    margin: -56px auto 0;
+    padding: 0 28px 20px;
+    position: relative;
+    z-index: 3;
+  }
+  .route-track{
+    position: relative;
+  }
+  .route-line{
+    display:none;
+  }
+  @media (min-width: 880px){
+    .route-line{
+      display:block;
+      position:absolute;
+      top: 46px;
+      left: 8%;
+      right: 8%;
+      height: 0;
+      border-top: 3px dashed rgba(23,61,44,0.22);
+      z-index: 0;
+    }
+  }
+  .service-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 880px){
+    .service-grid{ grid-template-columns: 1fr; }
+  }
+
+  .service-card{
+    background: var(--white);
+    border-radius: 8px;
+    padding: 30px 26px 26px;
+    box-shadow: 0 10px 30px rgba(23,61,44,0.10);
+    display:flex;
+    flex-direction:column;
+    position: relative;
+  }
+  .waypoint{
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--forest-light);
+    border: 3px solid var(--white);
+    box-shadow: 0 0 0 3px rgba(23,61,44,0.18);
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  @media (max-width: 880px){ .waypoint{ display:none; } }
+
+  .service-icon{
+    width: 46px; height: 46px;
+    border-radius: 8px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 18px;
+    background: var(--stone);
+  }
+  .service-icon svg{ width: 24px; height: 24px; }
+
+  .stamp{
+    position:absolute;
+    top: 22px; right: 22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 3px;
+    transform: rotate(3deg);
+  }
+  .stamp.live{
+    background: rgba(46,125,82,0.1);
+    color: var(--forest-light);
+    border: 1.5px solid var(--forest-light);
+  }
+  .stamp.soon{
+    background: rgba(94,110,100,0.08);
+    color: var(--steel);
+    border: 1.5px solid var(--line);
+  }
+
+  .service-card h3{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0 0 10px;
+  }
+  .service-card p{
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--steel);
+    margin: 0 0 24px;
+    flex-grow: 1;
+  }
+  .service-btn{
+    display:inline-block;
+    text-align:center;
+    text-decoration:none;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 11px 18px;
+    border-radius: 4px;
+  }
+  .service-btn.primary{
+    background: var(--forest);
+    color: var(--white);
+  }
+  .service-btn.primary:hover{ background: var(--forest-light); }
+  .service-btn.ghost{
+    background: transparent;
+    color: var(--forest);
+    border: 1.5px solid var(--line);
+  }
+  .service-btn.ghost:hover{ border-color: var(--forest-light); color: var(--forest-light); }
+
+  /* ---------- WHY / TWO COLUMN ---------- */
+  .why{
+    max-width: 1100px;
+    margin: 76px auto 0;
+    padding: 0 28px;
+  }
+  .why-head{
+    text-align:center;
+    margin-bottom: 40px;
+  }
+  .why-head h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+  .why-head p{ color: var(--steel); font-size: 15px; margin:0; }
+  .why-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px){ .why-grid{ grid-template-columns: 1fr; } }
+  .why-card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .why-card h4{
+    font-family:'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    font-size: 17px;
+    margin: 0 0 14px;
+    color: var(--forest);
+  }
+  .why-card ul{ margin:0; padding:0; list-style:none; }
+  .why-card li{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    font-size: 14px;
+    color: var(--graphite);
+    padding: 7px 0;
+    border-top: 1px solid var(--stone);
+  }
+  .why-card li:first-child{ border-top:none; }
+  .why-card li::before{
+    content:"";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ---------- POINTS TEASER ---------- */
+  .points{
+    max-width: 1100px;
+    margin: 76px auto 0;
+    padding: 0 28px;
+  }
+  .points-panel{
+    background: var(--forest);
+    color: var(--white);
+    border-radius: 10px;
+    padding: 44px 36px;
+    display:grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 36px;
+    align-items:center;
+  }
+  @media (max-width: 760px){
+    .points-panel{ grid-template-columns: 1fr; padding: 32px 24px; }
+  }
+  .points-copy .eyebrow{ margin-bottom:16px; }
+  .points-copy h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  .points-copy p{
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.75);
+    margin: 0;
+    max-width: 420px;
+  }
+  .points-card{
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(143,193,158,0.3);
+    border-radius: 8px;
+    padding: 22px;
+  }
+  .points-card .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--moss);
+  }
+  .points-card .balance{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: 44px;
+    font-weight: 800;
+    margin: 8px 0 4px;
+  }
+  .points-card .balance span{ color: var(--amber); }
+  .points-card .sub{ font-size: 12.5px; color: rgba(255,255,255,0.55); }
+  .points-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:18px;
+    padding-top:16px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  section[id]{ scroll-margin-top: 90px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Glasgow · UK-wide online</span>
+    <h1>Your car's whole journey,<br><em>sorted.</em></h1>
+    <p class="sub">Compare live parts prices, book a trusted garage, and get recovery when you break down — all in one place, built by someone who's actually turned the spanners.</p>
+    <a href="{{ url_for('parts') }}" class="hero-cta">Search Parts Now →</a>
+  </div>
+</header>
+
+<div class="services">
+  <div class="route-track">
+    <div class="route-line"></div>
+    <div class="service-grid">
+
+      <div class="service-card">
+        <span class="waypoint"></span>
+        <span class="stamp live">Live</span>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#173D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v2h-2"/><path d="M9 17h6"/></svg>
+        </div>
+        <h3>Parts Finder</h3>
+        <p>Compare live prices across eBay UK and more retailers, matched to your exact make, model and year. Cheapest first, always.</p>
+        <a href="{{ url_for('parts') }}" class="service-btn primary">Search Parts</a>
+      </div>
+
+      <div class="service-card" id="garages">
+        <span class="waypoint"></span>
+        <span class="stamp soon">Coming soon</span>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#173D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-8h6v8"/></svg>
+        </div>
+        <h3>Garage Finder</h3>
+        <p>Book a trusted local garage straight through ApexRML — no phone tag, no guessing on price. Earn points on every booking.</p>
+        <a href="#points" class="service-btn ghost">Get notified</a>
+      </div>
+
+      <div class="service-card" id="recovery">
+        <span class="waypoint"></span>
+        <span class="stamp soon">Coming soon</span>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#173D2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M14 9h4l4 4v4a1 1 0 0 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        </div>
+        <h3>Recovery</h3>
+        <p>Broken down? Request recovery and get matched with help nearby — connected straight into ApexRML.</p>
+        <a href="#points" class="service-btn ghost">Get notified</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<section class="why">
+  <div class="why-head">
+    <h2>Built from the workshop floor</h2>
+    <p>Run by a qualified vehicle technician and MOT tester — not a marketing team guessing at what garages and drivers actually need.</p>
+  </div>
+  <div class="why-grid">
+    <div class="why-card">
+      <h4>For drivers</h4>
+      <ul>
+        <li>Compare prices across multiple sellers in one search</li>
+        <li>Straight links to the listing — no middleman markup</li>
+        <li>Earn points on every garage booking</li>
+      </ul>
+    </div>
+    <div class="why-card">
+      <h4>For the trade</h4>
+      <ul>
+        <li>Source consumables and parts fast, without ringing round</li>
+        <li>Garage Finder brings new customers your way</li>
+        <li>Built by someone who's stood at the same parts counter</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="points" id="points">
+  <div class="points-panel">
+    <div class="points-copy">
+      <span class="eyebrow">ApexRML Points</span>
+      <h2>Earn as you go</h2>
+      <p>Every booking earns points you can spend on future parts, servicing, and recovery across ApexRML. No wallets, no crypto to manage — just rewards for sticking with us. Coming soon alongside Garage Finder and Recovery.</p>
+    </div>
+    <div class="points-card">
+      <div class="label">Your balance</div>
+      <div class="balance">0 <span>pts</span></div>
+      <div class="sub">Points launch alongside Garage Finder</div>
+      <div class="points-row">
+        <span>EARN</span>
+        <span>REDEEM</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
