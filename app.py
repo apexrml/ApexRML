@@ -51,7 +51,12 @@ PROVIDERS = [EbayProvider()] + _load_awin_providers()
 
 @app.route("/")
 def home():
-    return render_template("index.html", sources=[p.name for p in PROVIDERS])
+    return render_template("home.html", active="home")
+
+
+@app.route("/parts")
+def parts():
+    return render_template("parts.html", sources=[p.name for p in PROVIDERS], active="parts")
 
 
 @app.route("/search")

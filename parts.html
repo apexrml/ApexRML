@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}Parts Finder — ApexRML{% endblock %}
+
+{% block extra_head %}
+<style>
+  .parts-hero{
+    background: var(--forest);
+    color: var(--white);
+    padding: 44px 28px 84px;
+    text-align:center;
+  }
+  .parts-hero .eyebrow{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color: var(--amber);
+    border: 1px solid rgba(226,163,59,0.4);
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .parts-hero h1{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 46px);
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .parts-hero p{
+    color: rgba(255,255,255,0.7);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  main.parts-main{
+    max-width: 900px;
+    margin: -48px auto 60px;
+    padding: 0 20px;
+  }
+
+  .docket{
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(23,61,44,0.14);
+    padding: 30px 30px 26px;
+  }
+
+  .docket-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .docket-head h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    text-transform: uppercase;
+    font-size: 19px;
+    margin: 0;
+    color: var(--forest);
+  }
+  .docket-head span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--amber-dark);
+  }
+
+  .fields{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .field label{
+    display:block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--forest-light);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .field input{
+    width: 100%;
+    padding: 11px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    color: var(--graphite);
+    background: var(--stone);
+  }
+  .field input:focus{
+    outline: 2px solid var(--forest-light);
+    outline-offset: 1px;
+    background: var(--white);
+  }
+
+  button.search-btn{
+    background: var(--amber);
+    color: var(--graphite);
+    border: none;
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 16px;
+    padding: 13px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.1s ease;
+  }
+  button.search-btn:hover{ background:#EEB458; transform: translateY(-1px); }
+  button.search-btn:focus-visible{ outline: 3px solid var(--forest); outline-offset: 2px; }
+
+  .status{
+    margin-top: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--steel);
+  }
+  .sources-line{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--steel);
+    margin-top: 6px;
+  }
+
+  #results{
+    margin-top: 22px;
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ticket{
+    background: var(--stone);
+    border-left: 4px solid var(--forest-light);
+    border-radius: 4px;
+    padding: 14px 16px;
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items:center;
+  }
+  .ticket img{
+    width: 56px; height: 56px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #ccc;
+  }
+  .ticket .info a{
+    color: var(--graphite);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  .ticket .info a:hover{ text-decoration: underline; }
+  .ticket .meta{
+    font-size: 11px;
+    color: var(--steel);
+    margin-top: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .ticket .price{
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--forest);
+    white-space: nowrap;
+    text-align: right;
+  }
+  .ticket .price .source-badge{
+    display:block;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--steel);
+    margin-top: 4px;
+  }
+
+  .empty, .error{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 16px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+  .empty{ background: var(--stone); color: var(--steel); }
+  .error{ background: #FBEAE4; color: #A23E1D; border: 1px solid #E8B7A2; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<header class="parts-hero">
+  <span class="eyebrow">Live search</span>
+  <h1>Parts Finder</h1>
+  <p>Enter what you're after — we'll check {{ sources | join(", ") }} and show you the cheapest match.</p>
+</header>
+
+<main class="parts-main">
+  <div class="docket">
+    <div class="docket-head">
+      <h2>ApexRML Part Search</h2>
+    </div>
+
+    <form id="search-form" onsubmit="return false;">
+      <div class="fields">
+        <div class="field">
+          <label for="make">Make</label>
+          <input id="make" placeholder="e.g. Ford" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="model">Model</label>
+          <input id="model" placeholder="e.g. Focus" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="year">Year</label>
+          <input id="year" placeholder="e.g. 2015" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="part">Part</label>
+          <input id="part" placeholder="e.g. brake pads" autocomplete="off" />
+        </div>
+      </div>
+      <button class="search-btn" id="search-btn" type="submit">Search Parts</button>
+    </form>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById("search-form");
+  const btn = document.getElementById("search-btn");
+  const statusEl = document.getElementById("status");
+  const resultsEl = document.getElementById("results");
+
+  async function runSearch(){
+    const make = document.getElementById("make").value.trim();
+    const model = document.getElementById("model").value.trim();
+    const year = document.getElementById("year").value.trim();
+    const part = document.getElementById("part").value.trim();
+
+    if(!make && !model && !year && !part){
+      statusEl.textContent = "Enter at least one field to search.";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Searching...";
+    statusEl.textContent = "Checking live sources for matching parts...";
+    resultsEl.innerHTML = "";
+
+    const params = new URLSearchParams({ make, model, year, part });
+
+    try {
+      const res = await fetch(`/search?${params.toString()}`);
+      const data = await res.json();
+
+      if(!res.ok){
+        statusEl.textContent = "";
+        resultsEl.innerHTML = `<div class="error">${data.error || "Something went wrong."}</div>`;
+        return;
+      }
+
+      let statusText = `${data.results.length} result(s) for "${data.query}"`;
+      if(data.warnings && data.warnings.length){
+        statusText += ` — note: ${data.warnings.join(" | ")}`;
+      }
+      statusEl.textContent = statusText;
+
+      if(!data.results.length){
+        resultsEl.innerHTML = `<div class="empty">No matching parts found. Try fewer or different words.</div>`;
+        return;
+      }
+
+      resultsEl.innerHTML = data.results.map(item => `
+        <div class="ticket">
+          ${item.image ? `<img src="${item.image}" alt="" loading="lazy">` : `<div style="width:56px;height:56px;background:#ccc;border-radius:4px;"></div>`}
+          <div class="info">
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+            <div class="meta">${item.condition || "Condition n/a"} · seller: ${item.seller || "n/a"}</div>
+          </div>
+          <div class="price">${item.price || "—"}<span class="source-badge">${item.source || ""}</span></div>
+        </div>
+      `).join("");
+
+    } catch(err){
+      statusEl.textContent = "";
+      resultsEl.innerHTML = `<div class="error">Couldn't reach the server. Check your connection and try again.</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Search Parts";
+    }
+  }
+
+  form.addEventListener("submit", runSearch);
+</script>
+{% endblock %}
